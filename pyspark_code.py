@@ -1,7 +1,10 @@
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, lit, when, round
 import argparse
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
 def process_car_rental_data(data_date):
     # Initialize a SparkSession
     spark = SparkSession.builder \
@@ -50,14 +53,14 @@ def process_car_rental_data(data_date):
 
     # Read dimension tables from Snowflake
     snowflake_options = {
-        "sfURL" : "https://agrfaku-mm35774.snowflakecomputing.com",
-        "sfAccount": "agrfaku-mm35774",
-        "sfUser" : "omkar",
-        "sfPassword" : "Omkar@123",
-        "sfDatabase" : "project",
-        "sfSchema" : "car_rental",
-        "sfWarehouse" : "COMPUTE_WH",
-        "sfRole" : "ACCOUNTADMIN"
+        "sfURL" : os.getenv("sfURL"),
+        "sfAccount": os.getenv("sfAccount"),
+        "sfUser" : os.getenv("sfUser"),
+        "sfPassword" : os.getenv("sfPassword"),
+        "sfDatabase" : os.getenv("sfDatabase"),
+        "sfSchema" : os.getenv("sfSchema"),
+        "sfWarehouse" : os.getenv("sfWarehouse"),
+        "sfRole" : os.getenv("sfRole")
     }
 
     # SNOWFLAKE_SOURCE_NAME = "net.snowflake.spark.snowflake"
