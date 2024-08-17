@@ -3,25 +3,14 @@ from pyspark.sql.functions import col, lit, when, round
 import argparse
 
 def process_car_rental_data(data_date):
-    # spark_jars_packages = [
-    #     "net.snowflake:spark-snowflake_2.12:2.15.0-spark_3.4",
-    #     "net.snowflake:snowflake-jdbc:3.16.0"
-    # ]
-
-    # # Initialize Spark session with Maven dependencies
-    # spark = SparkSession.builder \
-    #     .appName("CarRentalsBatchIngestion") \
-    #     .config("spark.jars.packages", ",".join(spark_jars_packages)) \
-    #     .getOrCreate()
-
     # Initialize a SparkSession
     spark = SparkSession.builder \
         .appName("SnowflakeDataRead") \
-        .config("spark.jars", "gs://snowflake_projects/snowflake_jars/spark-snowflake_2.12-2.15.0-spark_3.4.jar,gs://snowflake_projects/snowflake_jars/snowflake-jdbc-3.16.0.jar") \
+        .config("spark.jars", "gs://snowflake-projects/snowflake_jars/spark-snowflake_2.12-2.15.0-spark_3.4.jar,gs://snowflake-projects/snowflake_jars/snowflake-jdbc-3.16.0.jar") \
         .getOrCreate()
 
     # Define GCS file path based on the date argument
-    gcs_file_path = f"gs://snowflake_projects/car_rental_data/car_rental_daily_data/car_rental_{data_date}.json"
+    gcs_file_path = f"gs://snowflake-projects/car_rental_data/car_rental_daily_data/car_rental_{data_date}.json"
 
     # Read raw JSON data
     raw_df = spark.read.option("multiline", "true").json(gcs_file_path)
@@ -61,14 +50,14 @@ def process_car_rental_data(data_date):
 
     # Read dimension tables from Snowflake
     snowflake_options = {
-        "sfURL": "https://lmpyhix-bq53873.snowflakecomputing.com",
-        "sfAccount": "lmpyhix-bq53873",
-        "sfUser": "admin",
-        "sfPassword": "admin",
-        "sfDatabase": "car_rental",
-        "sfSchema": "PUBLIC",
-        "sfWarehouse": "COMPUTE_WH",
-        "sfRole": "ACCOUNTADMIN"
+        "sfURL" : "https://agrfaku-mm35774.snowflakecomputing.com",
+        "sfAccount": "agrfaku-mm35774",
+        "sfUser" : "omkar",
+        "sfPassword" : "Omkar@123",
+        "sfDatabase" : "project",
+        "sfSchema" : "car_rental",
+        "sfWarehouse" : "COMPUTE_WH",
+        "sfRole" : "ACCOUNTADMIN"
     }
 
     # SNOWFLAKE_SOURCE_NAME = "net.snowflake.spark.snowflake"
@@ -149,7 +138,7 @@ def process_car_rental_data(data_date):
     # Join with customer_dim to get customer_key
     # TODO - Fix the condition because we always want to fetch active record of customer
     fact_df = fact_df.alias("fact") \
-        .join(customer_dim_df.alias("cust"), col("fact.customer_id") == col("cust.customer_id"), "left") \
+        .join(customer_dim_df.alias("cust"), (col("fact.customer_id") == col("cust.customer_id")) & (col("cust.is_current") == True), "left") \
         .withColumnRenamed("customer_key", "customer_key") \
         .drop("customer_id")
 
