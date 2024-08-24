@@ -139,7 +139,6 @@ def process_car_rental_data(data_date):
         .drop("end_date")
 
     # Join with customer_dim to get customer_key
-    # TODO - Fix the condition because we always want to fetch active record of customer
     fact_df = fact_df.alias("fact") \
         .join(customer_dim_df.alias("cust"), (col("fact.customer_id") == col("cust.customer_id")) & (col("cust.is_current") == True), "left") \
         .withColumnRenamed("customer_key", "customer_key") \
